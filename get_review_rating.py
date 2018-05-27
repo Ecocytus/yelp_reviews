@@ -4,7 +4,7 @@ import re
 import csv
 import nltk
 import ast
-
+from ultk.stem.lancaster import LancasterStemmer 
 
 
 def read_toekn_bayes():
@@ -16,7 +16,19 @@ def read_toekn_bayes():
             token_bayes[row[0]]= ast.literal_eval(row[1])
     return token_bayes
 
+def stemming(dict):
+    result = dict()
+    s = LancasterStemmer()
+    for words in dict:
+        if s.stem(words) in result:
+            for i in range(0,10):
+                dict[s.stem(words)][i] += dict[words][i]
+        else:
+            result[words] = dict[words]
+    return result
+
 def update_dict(singe_review, rating) :
+    s = LancasterStemmer()
     for tokens in nltk.word_tokenize(singe_review, language='english') :
         tokens = tokens.replace(".","")
         tokens = tokens.replace("-","")
@@ -25,6 +37,7 @@ def update_dict(singe_review, rating) :
         tokens = tokens.replace("'","")
         tokens = tokens.replace(".","")
         tokens = tokens.lower()
+        tokens = s.stem(tokens)
         tokens = str(tokens.encode(encoding="utf-8", errors="ignore"))
         if not tokens in dict_review_token:
             dict_review_token[tokens]= [0,0,0,0,0,0,0,0,0]
